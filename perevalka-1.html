@@ -1,0 +1,676 @@
+<meta charset="utf-8">
+<title>Перевалка — расчёт сборки продольной резки</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+<meta name="theme-color" content="#12161b" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#eceef1" media="(prefers-color-scheme: light)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Перевалка">
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAADn0lEQVR4nOzdTW5TVxjH4QOhkZHTuGqVDkirDkhYQaXOKgEC5u0aAJMtNGIZwYE1tHMIgQW0oyQjEtNBPyZVB7aoiCwQ9QL6HwTdvFLJ8yzhzU92zn2Pri98+vlqg/9yoUEgDiJxEImDSBxE4iASB5E4iMRBJA4icRCJg0gcROIgEgeROIjEQSQOInEQiYNIHETiIBIHkTiIxEEkDiJxEImDSBxE4iASB5E4iMRBJA4icRCJg0gcROIgEgeROIjEQSQOInEQiYNIHETiIBIHkTiIxEEkDiJxENXFcf3a1Y2N4ZX19cFg0Di5yWTy4vBwa2u0++x5K3Gu5gcAb9288ejhqNGF23eGj5/stNN3vpW4N7zb6EjZMIu+VtbWLjc6UjbMojiWl5cbHSkbptMKkTiIxEEkDiJxEBU955hOp42OlA2zKI6jo3GjI2XDLIrjwWi70ZGyYS5c7Fc8URmPX+7t7a+uXlrq93u9XuPk5ou3/YODzc37O093W4mixRv/R04rROIgEgeROIjEQSQOInEQiYNIHETiIBIHkTiIxEEkDiJxEImDqC6Or5dm36/Mvlx8uyTI9/LqTftttvDjX4u/vFpsJYquCX7z8eyHr16vfPRusejS6gdoPrr5AL/95M2vx+f/mC2001f0t/rus1mjI2XDLPqI/6L3ttGRsmEWxdGv+BQ8K8qG6Z9DInEQiYNIHETiICp6zvGPk2x3yoZZFMfvx86ynSkbZlEcP/1dtA44C8qGWbRbme8Cjl6fX1l8d/Gc9cp7mi/exscL23/2fq5avHkFA5HTCpE4iMRBJA4icRCJg0gcROIgEgeROIjEQSQOInEQiYNIHETiIKqL4/q1qxsbwyvr64PBoHFyk8nkxeHh1tZo99nzVqLoJtitmzcePRw1unD7zvDxk512+oruc94b3m10pGyYRV8ra2uXGx0pG2ZRHMvLFXfcz4iyYTqtEImDSBxE4iASB1HRc47pdNroSNkwi+I4Oho3OlI2zKI4Hoy2Gx0pG2bRKxjG45d7e/urq5eW+v1er9c4ufnibf/gYHPz/s7T3VbCKxiInFaIxEEkDiJxEImDSBxE4iASB5E4iMRBJA4icRCJg0gcROIgEgeROIjEQSQOInEQiYNIHETiIBIHkTiIxEEkDiJxEImDSBxE4iASB5E4iMRBJA4icRCJg0gcROIgEgeROIjEQSQOInEQiYNIHETiIBIHkTiIxEEkDqJ/AQAA//9+CPLqAAAABklEQVQDADKxm+7921PNAAAAAElFTkSuQmCC">
+<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAADn0lEQVR4nOzdTW5TVxjH4QOhkZHTuGqVDkirDkhYQaXOKgEC5u0aAJMtNGIZwYE1tHMIgQW0oyQjEtNBPyZVB7aoiCwQ9QL6HwTdvFLJ8yzhzU92zn2Pri98+vlqg/9yoUEgDiJxEImDSBxE4iASB5E4iMRBJA4icRCJg0gcROIgEgeROIjEQSQOInEQiYNIHETiIBIHkTiIxEEkDiJxEImDSBxE4iASB5E4iMRBJA4icRCJg0gcROIgEgeROIjEQSQOInEQiYNIHETiIBIHkTiIxEEkDiJxENXFcf3a1Y2N4ZX19cFg0Di5yWTy4vBwa2u0++x5K3Gu5gcAb9288ejhqNGF23eGj5/stNN3vpW4N7zb6EjZMIu+VtbWLjc6UjbMojiWl5cbHSkbptMKkTiIxEEkDiJxEBU955hOp42OlA2zKI6jo3GjI2XDLIrjwWi70ZGyYS5c7Fc8URmPX+7t7a+uXlrq93u9XuPk5ou3/YODzc37O093W4mixRv/R04rROIgEgeROIjEQSQOInEQiYNIHETiIBIHkTiIxEEkDiJxEImDqC6Or5dm36/Mvlx8uyTI9/LqTftttvDjX4u/vFpsJYquCX7z8eyHr16vfPRusejS6gdoPrr5AL/95M2vx+f/mC2001f0t/rus1mjI2XDLPqI/6L3ttGRsmEWxdGv+BQ8K8qG6Z9DInEQiYNIHETiICp6zvGPk2x3yoZZFMfvx86ynSkbZlEcP/1dtA44C8qGWbRbme8Cjl6fX1l8d/Gc9cp7mi/exscL23/2fq5avHkFA5HTCpE4iMRBJA4icRCJg0gcROIgEgeROIjEQSQOInEQiYNIHETiIKqL4/q1qxsbwyvr64PBoHFyk8nkxeHh1tZo99nzVqLoJtitmzcePRw1unD7zvDxk512+oruc94b3m10pGyYRV8ra2uXGx0pG2ZRHMvLFXfcz4iyYTqtEImDSBxE4iASB1HRc47pdNroSNkwi+I4Oho3OlI2zKI4Hoy2Gx0pG2bRKxjG45d7e/urq5eW+v1er9c4ufnibf/gYHPz/s7T3VbCKxiInFaIxEEkDiJxEImDSBxE4iASB5E4iMRBJA4icRCJg0gcROIgEgeROIjEQSQOInEQiYNIHETiIBIHkTiIxEEkDiJxEImDSBxE4iASB5E4iMRBJA4icRCJg0gcROIgEgeROIjEQSQOInEQiYNIHETiIBIHkTiIxEEkDqJ/AQAA//9+CPLqAAAABklEQVQDADKxm+7921PNAAAAAElFTkSuQmCC">
+<link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjoi0KDQsNGB0YfRkdGCINC/0LXRgNC10LLQsNC70LrQuCIsInNob3J0X25hbWUiOiLQn9C10YDQtdCy0LDQu9C60LAiLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsIm9yaWVudGF0aW9uIjoicG9ydHJhaXQiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiIzEyMTYxYiIsInRoZW1lX2NvbG9yIjoiIzEyMTYxYiIsImljb25zIjpbeyJzcmMiOiJkYXRhOmltYWdlL3BuZztiYXNlNjQsaVZCT1J3MEtHZ29BQUFBTlNVaEVVZ0FBQUxRQUFBQzBDQUlBQUFDeXI1RmxBQUFEbjBsRVFWUjRuT3pkVFc1VFZ4akg0UU9oa1pIVHVHcVZEa2lyRGtoWVFhWE9LZ0VDNXUwYUFKTXROR0lad1lFMXRITUlnUVcwb3lRakV0TkJQeVpWQjdhb2lDd1E5UUw2SHdUZHZGTEo4eXpoelU5MnpuMlByaTk4K3ZscWcvOXlvVUVnRGlKeEVJbURTQnhFNGlBU0I1RTRpTVJCSkE0aWNSQ0pnMGdjUk9JZ0VnZVJPSWpFUVNRT0luRVFpWU5JSEVUaUlCSUhrVGlJeEVFa0RpSnhFSW1EU0J4RTRpQVNCNUU0aU1SQkpBNGljUkNKZzBnY1JPSWdFZ2VST0lqRVFTUU9JbkVRaVlOSUhFVGlJQklIa1RpSXhFRWtEaUp4RU5YRmNmM2ExWTJONFpYMTljRmcwRGk1eVdUeTR2QndhMnUwKyt4NUszR3U1Z2NBYjkyODhlamhxTkdGMjNlR2o1L3N0Tk4zdnBXNE43emI2RWpaTUl1K1Z0YldMamM2VWpiTW9qaVdsNWNiSFNrYnB0TUtrVGlJeEVFa0RpSnhFQlU5NTVoT3A0Mk9sQTJ6S0k2am8zR2pJMlhETElyandXaTcwWkd5WVM1YzdGYzhVUm1QWCs3dDdhK3VYbHJxOTN1OVh1UGs1b3UzL1lPRHpjMzdPMDkzVzRtaXhSdi9SMDRyUk9JZ0VnZVJPSWpFUVNRT0luRVFpWU5JSEVUaUlCSUhrVGlJeEVFa0RpSnhFSW1EcUM2T3I1ZG0zNi9Ndmx4OHV5VEk5L0xxVGZ0dHR2RGpYNHUvdkZwc0pZcXVDWDd6OGV5SHIxNnZmUFJ1c2VqUzZnZG9QcnI1QUwvOTVNMnZ4K2YvbUMyMDAxZjB0L3J1czFtakkyWERMUHFJLzZMM3R0R1JzbUVXeGRHditCUThLOHFHNlo5REluRVFpWU5JSEVUaUlDcDZ6dkdQazJ4M3lvWlpGTWZ2eDg2eW5Ta2JabEVjUC8xZHRBNDRDOHFHV2JSYm1lOENqbDZmWDFsOGQvR2M5Y3A3bWkvZXhzY0wyMy8yZnE1YXZIa0ZBNUhUQ3BFNGlNUkJKQTRpY1JDSmcwZ2NST0lnRWdlUk9JakVRU1FPSW5FUWlZTklIRVRpSUtxTDQvcTFxeHNid3l2cjY0UEJvSEZ5azhua3hlSGgxdFpvOTluelZxTG9KdGl0bXpjZVBSdzF1bkQ3enZEeGs1MTIrb3J1Yzk0YjNtMTBwR3lZUlY4cmEydVhHeDBwRzJaUkhNdkxGWGZjejRpeVlUcXRFSW1EU0J4RTRpQVNCMUhSYzQ3cGROcm9TTmt3aStJNE9obzNPbEkyektJNEhveTJHeDBwRzJiUkt4akc0NWQ3ZS91cnE1ZVcrdjFlcjljNHVmbmliZi9nWUhQei9zN1QzVmJDS3hpSW5GYUl4RUVrRGlKeEVJbURTQnhFNGlBU0I1RTRpTVJCSkE0aWNSQ0pnMGdjUk9JZ0VnZVJPSWpFUVNRT0luRVFpWU5JSEVUaUlCSUhrVGlJeEVFa0RpSnhFSW1EU0J4RTRpQVNCNUU0aU1SQkpBNGljUkNKZzBnY1JPSWdFZ2VST0lqRVFTUU9JbkVRaVlOSUhFVGlJQklIa1RpSXhFRWtEcUovQVFBQS8vOStDUExxQUFBQUJrbEVRVlFEQURLeG0rNzkyMVBOQUFBQUFFbEZUa1N1UW1DQyIsInNpemVzIjoiMTgweDE4MCIsInR5cGUiOiJpbWFnZS9wbmcifV19">
+<style>
+  :root {
+    /* Steel-cool neutrals with a slight blue bias; amber as the single accent */
+    --bg:        #eceef1;
+    --surface:   #ffffff;
+    --surface-2: #f6f7f9;
+    --border:    #d3d8de;
+    --border-strong:#b6bec7;
+    --ink:       #1b2027;
+    --ink-2:     #4a525c;
+    --muted:     #79828d;
+    --accent:    #c2410c;   /* industrial amber */
+    --accent-ink:#ffffff;
+    --accent-soft:#fbe8de;
+    --readout:   #0f1216;   /* big number ground */
+    --readout-ink:#f4f6f8;
+    --good:      #15803d;
+    --good-soft: #e3f2e8;
+    --warn:      #b91c1c;
+    --warn-soft: #fbe4e4;
+    --rubber-blue:#1d4ed8;
+    --rubber-blue-soft:#e2e9fb;
+    --rubber-green:#15803d;
+    --rubber-green-soft:#e0f1e6;
+    --radius: 12px;
+    --shadow: 0 1px 2px rgba(20,28,38,.06), 0 3px 10px rgba(20,28,38,.05);
+  }
+  /* Тёмная тема — чистый CSS, включается чекбоксом (без JavaScript) */
+  :root:has(#themeToggle:checked) {
+    --bg:#14171b; --surface:#1c2027; --surface-2:#232830; --border:#333b45; --border-strong:#454f5b;
+    --ink:#eef1f4; --ink-2:#b8c0ca; --muted:#838d99; --accent:#f4813f; --accent-ink:#1a1206; --accent-soft:#3a2416;
+    --readout:#0a0c0f; --readout-ink:#f4f6f8; --good:#4ade80; --good-soft:#16281c; --warn:#f87171; --warn-soft:#33191a;
+    --rubber-blue:#7aa2ff; --rubber-blue-soft:#1a2440; --rubber-green:#5fd08a; --rubber-green-soft:#16281c;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 3px 12px rgba(0,0,0,.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.45;
+    font-size: 16px;
+  }
+  .mono { font-family: ui-monospace, "SF Mono", "Cascadia Mono", "Roboto Mono", Menlo, Consolas, monospace; font-variant-numeric: tabular-nums; }
+  .wrap { max-width: 660px; margin: 0 auto; padding: 16px 14px 64px; }
+
+  header.top {
+    display: flex; align-items: center; gap: 12px;
+    padding: 4px 2px 14px;
+  }
+  .logo {
+    flex: 0 0 auto; width: 40px; height: 40px; border-radius: 9px;
+    background: var(--readout); position: relative; overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .logo::before, .logo::after {
+    content:""; position:absolute; left:0; right:0; height:3px; background:var(--accent);
+  }
+  .logo::before { top: 12px; } .logo::after { top: 25px; box-shadow: 0 -6px 0 var(--readout-ink), 0 6px 0 var(--readout-ink); }
+  .title h1 { margin: 0; font-size: 1.18rem; letter-spacing: .01em; }
+  .title p { margin: 1px 0 0; color: var(--muted); font-size: .8rem; }
+  .theme-cb { position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none; }
+  .theme-btn {
+    margin-left: auto; flex: 0 0 auto; border: 1px solid var(--border); background: var(--surface);
+    color: var(--ink-2); border-radius: 9px; width: 40px; height: 40px; font-size: 1.1rem; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; user-select: none;
+  }
+  .theme-btn::after { content: "\263E"; }                 /* ☾ — предлагает тёмную */
+  :root:has(#themeToggle:checked) .theme-btn::after { content: "\2600"; } /* ☀ — предлагает светлую */
+  .theme-btn:hover { border-color: var(--border-strong); }
+  .theme-cb:focus-visible + .theme-btn { outline: 3px solid var(--accent-soft); outline-offset: 1px; border-color: var(--accent); }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    box-shadow: var(--shadow); margin-bottom: 14px; overflow: hidden;
+  }
+  .card > .head {
+    display: flex; align-items: center; gap: 8px; padding: 12px 14px;
+    border-bottom: 1px solid var(--border); background: var(--surface-2);
+  }
+  .card > .head .eyebrow { font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+  .card > .head h2 { margin: 0; font-size: 1rem; }
+  .card > .body { padding: 14px; }
+  details.card > summary {
+    list-style: none; cursor: pointer; padding: 12px 14px; background: var(--surface-2);
+    display: flex; align-items: center; gap: 8px; font-weight: 600;
+  }
+  details.card > summary::-webkit-details-marker { display: none; }
+  details.card > summary .chev { margin-left: auto; color: var(--muted); transition: transform .15s; }
+  details.card[open] > summary .chev { transform: rotate(90deg); }
+  details.card > summary + .body { border-top: 1px solid var(--border); }
+
+  label.field { display: block; margin-bottom: 10px; }
+  label.field:last-child { margin-bottom: 0; }
+  .field > .lab { display: block; font-size: .78rem; color: var(--ink-2); font-weight: 600; margin-bottom: 4px; }
+  .field > .hint { color: var(--muted); font-weight: 400; }
+  input[type=number], input[type=text], select {
+    width: 100%; padding: 11px 12px; font-size: 1rem; color: var(--ink);
+    background: var(--surface); border: 1px solid var(--border-strong); border-radius: 9px;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-variant-numeric: tabular-nums;
+  }
+  select { font-family: system-ui, sans-serif; }
+  input:focus, select:focus, button:focus-visible, summary:focus-visible {
+    outline: 3px solid var(--accent-soft); outline-offset: 1px; border-color: var(--accent);
+  }
+  .static-val { padding: 11px 12px; font-size: 1rem; border: 1px solid var(--border); border-radius: 9px; background: var(--surface-2); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .gaprow { margin: 2px 0 8px; }
+  .gapauto { display: flex; align-items: center; gap: 9px; font-size: .88rem; color: var(--ink-2); font-weight: 600; margin-bottom: 8px; cursor: pointer; }
+  .gapauto input { width: 20px; height: 20px; accent-color: var(--accent); flex: 0 0 auto; }
+  input:disabled { opacity: .5; cursor: not-allowed; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+  button {
+    font-family: inherit; font-size: .92rem; font-weight: 600; cursor: pointer;
+    border-radius: 9px; padding: 10px 14px; border: 1px solid var(--border-strong);
+    background: var(--surface); color: var(--ink);
+  }
+  button:hover { border-color: var(--accent); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  button.ghost { background: transparent; border-style: dashed; color: var(--ink-2); width: 100%; }
+  button.mini { padding: 7px 10px; font-size: .82rem; }
+  button.icon { padding: 6px 10px; color: var(--warn); border-color: var(--border); background: var(--surface-2); }
+
+  table.rows { width: 100%; border-collapse: collapse; }
+  table.rows th { text-align: left; font-size: .72rem; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); padding: 4px 6px; font-weight: 700; }
+  table.rows td { padding: 4px 6px; }
+  .order-row td:first-child, .order-row td:nth-child(2) { width: 42%; }
+  .sort-list { display: flex; flex-direction: column; gap: 8px; }
+  .sort-item {
+    display: flex; align-items: center; gap: 10px; padding: 9px 11px;
+    border: 1px solid var(--border); border-radius: 9px; background: var(--surface-2);
+  }
+  .sort-item .p { font-weight: 700; }
+  .sort-item .t { color: var(--muted); font-size: .85rem; }
+  .sort-item .sp { margin-left: auto; }
+
+  /* Result */
+  #result .body { padding: 0; }
+  .readouts { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); }
+  .ro {
+    background: var(--readout); color: var(--readout-ink); padding: 16px 14px 14px;
+  }
+  .ro .k { font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; color: #9aa6b2; font-weight: 700; }
+  .ro .v { font-size: 2.05rem; font-weight: 700; margin-top: 2px; line-height: 1; }
+  .ro .v small { font-size: .9rem; color: #9aa6b2; font-weight: 500; margin-left: 3px; }
+
+  .subline { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 14px; border-bottom: 1px solid var(--border); }
+  .stat { flex: 1 1 auto; min-width: 120px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 9px; padding: 9px 11px; }
+  .stat .k { font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+  .stat .v { font-size: 1.15rem; font-weight: 700; margin-top: 1px; }
+
+  .chip { display: inline-flex; align-items: center; gap: 7px; padding: 6px 12px; border-radius: 999px; font-weight: 700; font-size: .9rem; }
+  .chip .dot { width: 12px; height: 12px; border-radius: 50%; box-shadow: 0 0 0 2px rgba(255,255,255,.55) inset; }
+  .chip.blue { background: var(--rubber-blue-soft); color: var(--rubber-blue); } .chip.blue .dot { background: var(--rubber-blue); }
+  .chip.green { background: var(--rubber-green-soft); color: var(--rubber-green); } .chip.green .dot { background: var(--rubber-green); }
+  .chip.none { background: var(--surface-2); color: var(--muted); } .chip.none .dot { background: var(--muted); }
+
+  .cuts { padding: 6px 14px 14px; }
+  table.cuts { width: 100%; border-collapse: collapse; }
+  table.cuts th { text-align: right; font-size: .7rem; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); padding: 8px 6px 6px; font-weight: 700; border-bottom: 1px solid var(--border); }
+  table.cuts th:first-child { text-align: left; }
+  table.cuts td { padding: 9px 6px; text-align: right; border-bottom: 1px solid var(--border); }
+  table.cuts td:first-child { text-align: left; font-weight: 700; }
+  table.cuts tr:last-child td { border-bottom: none; }
+  .cuts .big { font-size: 1.12rem; }
+
+  .fitnote { padding: 8px 14px; font-size: .78rem; color: var(--muted); border-top: 1px solid var(--border); }
+  .fitnote .fits { color: var(--good); font-weight: 700; }
+  .fitnote .over { color: var(--warn); font-weight: 700; }
+  .fitnote .hintq { color: var(--muted); }
+  .banner { padding: 11px 14px; font-size: .9rem; font-weight: 600; display: flex; gap: 9px; align-items: flex-start; }
+  .banner.ok { background: var(--good-soft); color: var(--good); }
+  .banner.err { background: var(--warn-soft); color: var(--warn); }
+  .banner .ic { flex: 0 0 auto; }
+
+  /* Arbor layout diagram */
+  .layout-wrap { padding: 6px 14px 16px; }
+  .layout-wrap .lab { font-size: .72rem; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); font-weight: 700; margin: 6px 0 8px; }
+  .bar { display: flex; align-items: stretch; gap: 2px; overflow-x: auto; padding-bottom: 6px; }
+  .seg { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; min-width: 0; }
+  .seg .box { border-radius: 4px; width: 100%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: .7rem; font-weight: 700; padding: 0 4px; }
+  .seg .cap { font-size: .62rem; color: var(--muted); margin-top: 3px; white-space: nowrap; }
+  .seg.cut { min-width: 62px; }
+  .seg.cut .box { height: 42px; }
+  .seg.cut.clean .box { background: var(--accent); color: var(--accent-ink); }
+  .seg.cut.rough .box { background: #3f4753; color: #fff; }
+  .arbor { margin-bottom: 12px; }
+  .arbor:last-of-type { margin-bottom: 6px; }
+  .atag { display: block; font-size: .7rem; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); font-weight: 700; margin-bottom: 5px; }
+  .legend { display: flex; gap: 16px; margin-top: 4px; }
+  .legend .lg { font-size: .76rem; color: var(--ink-2); display: inline-flex; align-items: center; gap: 7px; }
+  .legend .lg::before { content: ""; width: 13px; height: 13px; border-radius: 3px; }
+  .legend .lg.clean::before { background: var(--accent); }
+  .legend .lg.rough::before { background: #3f4753; }
+
+  /* Компактный ввод */
+  .ibody { padding: 12px 13px; }
+  .orderwrap { margin-top: 8px; }
+  .inputactions { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 8px; flex-wrap: wrap; }
+  .inputactions .ghost { width: auto; flex: 0 0 auto; padding: 9px 16px; }
+  .inputactions .gapauto { margin: 0; }
+  #gapFields { margin-top: 10px; }
+
+  /* Разделитель — элементы ввода */
+  .seprow { display: flex; align-items: center; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+  .seplab { font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+  .mini-field { display: flex; flex-direction: column; gap: 3px; }
+  .mini-field > span { font-size: .68rem; color: var(--ink-2); font-weight: 600; }
+  .mini-field select { padding: 7px 10px; font-size: .9rem; }
+
+  /* Главные цифры */
+  .card.result { border-color: var(--border-strong); }
+  .blabel { font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 800; padding: 9px 14px 0; }
+  .cutmini.sep .cmhead, .cutmini.sep .cmrow { grid-template-columns: 1.6fr 1fr; }
+  .rgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); }
+  .rgrid .ro { background: var(--readout); color: var(--readout-ink); padding: 14px 14px 13px; }
+  .rgrid .ro .k { font-size: .66rem; letter-spacing: .07em; text-transform: uppercase; color: #9aa6b2; font-weight: 700; }
+  .rgrid .ro .v { font-size: 2.15rem; font-weight: 700; line-height: 1; margin-top: 4px; }
+  .rgrid .ro .v small { font-size: .82rem; color: #9aa6b2; margin-left: 3px; font-weight: 500; }
+  .rgrid .ro.cut .v { color: #f4813f; }
+  .rgrid .ro .v.bad { color: #f87171; }
+
+  .cutmini { padding: 8px 14px 4px; }
+  .cutmini .cmhead, .cutmini .cmrow { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 8px; align-items: center; }
+  .cutmini .cmhead { font-size: .66rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 700; padding-bottom: 5px; border-bottom: 1px solid var(--border); }
+  .cutmini .cmhead span + span, .cutmini .cmrow span + span { text-align: right; }
+  .cutmini .cmrow { padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .cutmini .cmrow:last-child { border-bottom: none; }
+  .cutmini .cmw { font-weight: 700; }
+  .cutmini .cmrow span + span { font-size: 1.1rem; font-weight: 600; }
+  .cutmini .bad { color: var(--warn); }
+
+  .statline { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; padding: 11px 14px; font-size: .82rem; color: var(--ink-2); border-top: 1px solid var(--border); }
+  .statline b { color: var(--ink); font-variant-numeric: tabular-nums; }
+  .statline .fits { color: var(--good); font-weight: 700; }
+  .statline .over { color: var(--warn); font-weight: 700; }
+  .statline .chip { padding: 4px 10px; font-size: .78rem; }
+
+  footer { text-align: center; color: var(--muted); font-size: .76rem; padding: 6px 0; }
+  .foot-note { color: var(--muted); font-size: .78rem; padding: 0 2px; margin-top: -4px; }
+  @media (max-width: 420px) {
+    .rgrid .ro .v { font-size: 1.85rem; }
+  }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="logo" aria-hidden="true"></div>
+    <div class="title">
+      <h1>Расчёт перевалки</h1>
+      <p>Продольная резка металла — сборка на валу</p>
+    </div>
+    <input type="checkbox" id="themeToggle" class="theme-cb">
+    <label class="theme-btn" for="themeToggle" title="Сменить тему" role="button" aria-label="Сменить тему"></label>
+  </header>
+
+  <!-- ГЛАВНЫЕ ЦИФРЫ — сразу перед глазами -->
+  <div class="card result" id="result">
+    <div id="resultBody"></div>
+  </div>
+
+  <!-- РАЗДЕЛИТЕЛЬ — отдельное окошко -->
+  <div class="card result" id="sepResult">
+    <div id="sepBody"></div>
+  </div>
+
+  <!-- ВВОД (компактно) -->
+  <div class="card" id="inputs">
+    <div class="ibody">
+      <div class="grid3">
+        <label class="field"><span class="lab">Толщина, мм</span><input type="number" id="t" value="1.8" step="0.01" inputmode="decimal"></label>
+        <label class="field"><span class="lab">Подкат, мм</span><input type="number" id="p" value="1250" step="1" inputmode="decimal"></label>
+        <div class="field"><span class="lab">Нож, мм</span>
+          <select id="knifeSel">
+            <option value="11">11</option>
+            <option value="13">13</option>
+            <option value="15">15</option>
+            <option value="other">Другое…</option>
+          </select>
+          <input type="number" id="knifeCustom" placeholder="Своя, мм" step="0.5" inputmode="decimal" style="margin-top:8px; display:none">
+        </div>
+      </div>
+      <div class="orderwrap">
+        <table class="rows"><thead><tr><th>Ширина полосы, мм</th><th>Кол-во, шт</th><th></th></tr></thead>
+        <tbody id="orderBody"></tbody></table>
+      </div>
+      <div class="inputactions">
+        <button class="ghost" id="addRow">+ Ещё ширина</button>
+        <label class="gapauto"><input type="checkbox" id="gapAuto" checked> Зазор авто по толщине</label>
+      </div>
+      <div class="grid2" id="gapFields">
+        <label class="field"><span class="lab">Общий зазор, мм</span><input type="number" id="gapTotal" step="0.05" inputmode="decimal"></label>
+        <label class="field"><span class="lab">Зазор на ноже, мм</span><input type="number" id="gapKnife" step="0.05" inputmode="decimal"></label>
+      </div>
+      <div class="seprow">
+        <span class="seplab">Разделитель</span>
+        <label class="mini-field"><span>прибавка</span>
+          <select id="sepDelta">
+            <option value="auto">Авто</option>
+            <option value="3">+3</option>
+            <option value="4">+4</option>
+            <option value="5">+5</option>
+          </select>
+        </label>
+        <label class="mini-field"><span>ср. кольца</span>
+          <select id="sepRing">
+            <option value="5">5 мм</option>
+            <option value="3">3 мм</option>
+          </select>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- РАСКЛАДКА НА ВАЛАХ (ниже) -->
+  <div class="card" id="layout"><div id="layoutBody"></div></div>
+
+  <!-- СОХРАНЁННЫЕ ПОДКАТЫ (второстепенное) -->
+  <details class="card" id="sortament">
+    <summary>📋 Сохранённые подкаты <span class="chev">›</span></summary>
+    <div class="ibody">
+      <div class="sort-list" id="sortList"></div>
+      <div class="grid3" style="margin-top:10px; align-items:end;">
+        <label class="field" style="margin:0"><span class="lab">Подкат, мм</span><input type="number" id="newP" placeholder="1250" step="1" inputmode="decimal"></label>
+        <label class="field" style="margin:0"><span class="lab">Толщина, мм</span><input type="number" id="newT" placeholder="1,8" step="0.01" inputmode="decimal"></label>
+        <button class="mini" id="addSort" style="height:44px">+ В список</button>
+      </div>
+    </div>
+  </details>
+
+  <footer>Ширина вала 1650 мм · расчёт вспомогательный — сверяйтесь с фактическим инструментом.</footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // --- Gap table (thickness range -> total gap, per-knife gap) ---
+  var GAPS = [
+    [0.80, 0.99, 0.1, 0.05], [1.00, 1.29, 0.2, 0.10], [1.30, 1.49, 0.3, 0.15],
+    [1.50, 1.69, 0.4, 0.20], [1.70, 1.99, 0.5, 0.25], [2.00, 2.45, 0.6, 0.30],
+    [2.50, 2.99, 0.7, 0.35], [3.00, 3.49, 0.8, 0.40], [3.50, 3.99, 0.9, 0.45],
+    [4.00, 4.49, 1.0, 0.50], [4.50, 4.99, 1.2, 0.60], [5.00, 5.49, 1.3, 0.65],
+    [5.50, 6.00, 1.4, 0.75]
+  ];
+  function lookupGap(t) {
+    for (var i = 0; i < GAPS.length; i++) {
+      if (t >= GAPS[i][0] - 1e-9 && t <= GAPS[i][1] + 1e-9) return { total: GAPS[i][2], knife: GAPS[i][3] };
+    }
+    return null;
+  }
+  function rubber(t) {
+    if (t >= 2.1 - 1e-9 && t <= 4.0 + 1e-9) return { cls: "blue", name: "Синие резинки" };
+    if (t >= 4.1 - 1e-9 && t <= 6.0 + 1e-9) return { cls: "green", name: "Зелёные резинки" };
+    return { cls: "none", name: "Без спец. резинок (толщина < 2,1 мм)" };
+  }
+  // прибавка к ширине полосы для разделителя, по толщине (можно переопределить вручную)
+  function sepDeltaAuto(t) {
+    if (!isFinite(t)) return 3;
+    if (t <= 1.8 + 1e-9) return 3;
+    if (t <= 3.65 + 1e-9) return 4;
+    return 5;
+  }
+
+  // --- number format: comma decimals, up to 3 dp, trim zeros ---
+  function fmt(x) {
+    if (!isFinite(x)) return "—";
+    var s = (Math.round(x * 1000) / 1000).toFixed(3);
+    s = s.replace(/\.?0+$/, "");
+    return s.replace(".", ",");
+  }
+  function num(id) { var v = parseFloat(String(document.getElementById(id).value).replace(",", ".")); return isFinite(v) ? v : NaN; }
+
+  // --- persistence ---
+  var LS = { set: "perevalka.sortament.v1", cfg: "perevalka.settings.v1", ord: "perevalka.order.v1" };
+  function load(k, d) { try { var v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } }
+  function save(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+
+  var sortament = load(LS.set, [{ p: 1250, t: 1.8 }, { p: 1000, t: 2.0 }]);
+  var order = load(LS.ord, [{ w: 150, q: 8 }]);
+
+  // --- settings restore ---
+  var cfg = load(LS.cfg, {});
+  var knifeSel = document.getElementById("knifeSel");
+  var knifeCustom = document.getElementById("knifeCustom");
+  function knifeVal() {
+    if (knifeSel.value === "other") { var v = parseFloat(String(knifeCustom.value).replace(",", ".")); return isFinite(v) ? v : NaN; }
+    return parseFloat(knifeSel.value);
+  }
+  function toggleKnife() { knifeCustom.style.display = (knifeSel.value === "other") ? "block" : "none"; }
+  if (cfg.knife != null) {
+    var kw = String(cfg.knife);
+    if (kw === "11" || kw === "13" || kw === "15") { knifeSel.value = kw; }
+    else { knifeSel.value = "other"; knifeCustom.value = cfg.knife; }
+  }
+  toggleKnife();
+
+  // --- зазор: авто/вручную ---
+  var gapAutoEl = document.getElementById("gapAuto");
+  function syncGapFields() {
+    var auto = gapAutoEl.checked;
+    document.getElementById("gapFields").style.display = auto ? "none" : "grid";
+    document.getElementById("gapTotal").disabled = auto;
+    document.getElementById("gapKnife").disabled = auto;
+  }
+  if (cfg.gapAuto === false) gapAutoEl.checked = false;
+  if (!gapAutoEl.checked) {
+    if (cfg.gapTotal != null) document.getElementById("gapTotal").value = cfg.gapTotal;
+    if (cfg.gapKnife != null) document.getElementById("gapKnife").value = cfg.gapKnife;
+  }
+  syncGapFields();
+  if (cfg.sepDelta != null) document.getElementById("sepDelta").value = cfg.sepDelta;
+  if (cfg.sepRing != null) document.getElementById("sepRing").value = cfg.sepRing;
+
+  // ===== SORTAMENT UI =====
+  var sortList = document.getElementById("sortList");
+  function renderSort() {
+    sortList.innerHTML = "";
+    if (!sortament.length) { sortList.innerHTML = '<p class="foot-note" style="margin:0">Список пуст. Добавьте подкат ниже.</p>'; return; }
+    sortament.forEach(function (s, i) {
+      var el = document.createElement("div"); el.className = "sort-item";
+      el.innerHTML = '<span class="p mono">' + fmt(s.p) + ' мм</span>' +
+        (s.t != null && isFinite(s.t) ? '<span class="t mono">· ' + fmt(s.t) + ' мм</span>' : '') +
+        '<span class="sp"></span>' +
+        '<button class="mini" data-use="' + i + '">Выбрать</button>' +
+        '<button class="icon" data-del="' + i + '" aria-label="Удалить">✕</button>';
+      sortList.appendChild(el);
+    });
+  }
+  sortList.addEventListener("click", function (e) {
+    var u = e.target.getAttribute("data-use"), d = e.target.getAttribute("data-del");
+    if (u != null) { var s = sortament[+u]; document.getElementById("p").value = s.p; if (s.t != null) document.getElementById("t").value = s.t; compute(); document.getElementById("result").scrollIntoView({ behavior: "smooth", block: "start" }); }
+    if (d != null) { sortament.splice(+d, 1); save(LS.set, sortament); renderSort(); }
+  });
+  document.getElementById("addSort").addEventListener("click", function () {
+    var p = parseFloat(String(document.getElementById("newP").value).replace(",", "."));
+    var t = parseFloat(String(document.getElementById("newT").value).replace(",", "."));
+    if (!isFinite(p)) { document.getElementById("newP").focus(); return; }
+    sortament.push({ p: p, t: isFinite(t) ? t : null }); save(LS.set, sortament); renderSort();
+    document.getElementById("newP").value = ""; document.getElementById("newT").value = "";
+  });
+
+  // ===== ORDER UI =====
+  var orderBody = document.getElementById("orderBody");
+  function renderOrder() {
+    orderBody.innerHTML = "";
+    order.forEach(function (r, i) {
+      var tr = document.createElement("tr"); tr.className = "order-row";
+      tr.innerHTML = '<td><input type="number" step="1" inputmode="decimal" data-w="' + i + '" value="' + r.w + '"></td>' +
+        '<td><input type="number" step="1" inputmode="decimal" data-q="' + i + '" value="' + r.q + '"></td>' +
+        '<td style="text-align:right"><button class="icon" data-orddel="' + i + '" aria-label="Удалить строку"' + (order.length <= 1 ? ' disabled style="opacity:.4"' : '') + '>✕</button></td>';
+      orderBody.appendChild(tr);
+    });
+  }
+  orderBody.addEventListener("input", function (e) {
+    var w = e.target.getAttribute("data-w"), q = e.target.getAttribute("data-q");
+    if (w != null) order[+w].w = parseFloat(String(e.target.value).replace(",", ".")) || 0;
+    if (q != null) order[+q].q = parseInt(e.target.value, 10) || 0;
+    save(LS.ord, order); compute();
+  });
+  orderBody.addEventListener("click", function (e) {
+    var d = e.target.getAttribute("data-orddel");
+    if (d != null && order.length > 1) { order.splice(+d, 1); save(LS.ord, order); renderOrder(); compute(); }
+  });
+  document.getElementById("addRow").addEventListener("click", function () {
+    order.push({ w: 100, q: 1 }); save(LS.ord, order); renderOrder(); compute();
+  });
+
+  // ===== COMPUTE =====
+  var resultBody = document.getElementById("resultBody");
+  function compute() {
+    var K = 15;    // константа (не редактируется)
+    var val = 1650; // ширина вала (фиксированная)
+    var knife = knifeVal(), t = num("t"), P = num("p");
+    var gapAuto = document.getElementById("gapAuto").checked;
+    syncGapFields();
+
+    var errs = [];
+    if (!isFinite(t)) errs.push("Укажите толщину металла.");
+    if (!isFinite(P)) errs.push("Укажите ширину подката.");
+    if (!isFinite(knife)) errs.push("Укажите ширину ножа.");
+
+    // зазор: авто по толщине ИЛИ вручную
+    var gap = null;
+    if (gapAuto) {
+      gap = isFinite(t) ? lookupGap(t) : null;
+      if (isFinite(t) && !gap) errs.push("Толщина " + fmt(t) + " мм вне таблицы зазоров (0,8–6,0 мм). Снимите «авто» и впишите зазор вручную.");
+      if (gap) { document.getElementById("gapTotal").value = gap.total; document.getElementById("gapKnife").value = gap.knife; }
+    } else {
+      var gt = num("gapTotal"), gk = num("gapKnife");
+      if (!isFinite(gt)) errs.push("Укажите общий зазор.");
+      if (!isFinite(gk)) errs.push("Укажите зазор на ноже.");
+      gap = { total: gt, knife: gk };
+    }
+    if (isFinite(P) && isFinite(val) && P > val) errs.push("Подкат " + fmt(P) + " шире вала " + fmt(val) + " мм.");
+
+    // сохранить настройки
+    save(LS.cfg, { knife: knifeVal(), gapAuto: gapAuto, gapTotal: document.getElementById("gapTotal").value, gapKnife: document.getElementById("gapKnife").value, sepDelta: document.getElementById("sepDelta").value, sepRing: document.getElementById("sepRing").value });
+
+    var layoutBody = document.getElementById("layoutBody");
+    var sepBody = document.getElementById("sepBody");
+    if (errs.length) {
+      resultBody.innerHTML = '<div class="banner err"><span class="ic">⚠</span><span>' + errs.join("<br>") + '</span></div>';
+      layoutBody.innerHTML = "";
+      sepBody.innerHTML = "";
+      return;
+    }
+
+    var base = (val - P) / 2 - K;
+    var upper = base - knife;        // верхний корень
+    var lower = base + gap.knife;    // нижний корень (прибавляем половину зазора)
+    var rub = rubber(t);
+    var rubShort = rub.cls === "blue" ? "Синие резинки" : rub.cls === "green" ? "Зелёные резинки" : "Без резинок";
+
+    // per width (aggregate identical widths)
+    var agg = {};
+    order.forEach(function (r) { if (r.w > 0 && r.q > 0) { agg[r.w] = (agg[r.w] || 0) + r.q; } });
+    var widths = Object.keys(agg).map(parseFloat).sort(function (a, b) { return a - b; });
+
+    var totalStrips = 0, usedWidth = 0;
+    widths.forEach(function (w) { totalStrips += agg[w]; usedWidth += w * agg[w]; });
+    var knivesPerArbor = totalStrips + 1;   // ножей на одном валу
+    var knives = knivesPerArbor * 2;        // всего (два вала)
+    var edgeTrim = P - usedWidth;
+
+    // ===== ГЛАВНЫЕ ЦИФРЫ (верхний/нижний корень + чистовой/черновой рез) =====
+    var h = '<div class="blabel">Перевалка</div>';
+    h += '<div class="rgrid">' +
+      '<div class="ro"><div class="k">Верхний корень</div><div class="v mono">' + fmt(upper) + '<small>мм</small></div></div>' +
+      '<div class="ro"><div class="k">Нижний корень</div><div class="v mono">' + fmt(lower) + '<small>мм</small></div></div>';
+    if (widths.length === 1) {
+      var w0 = widths[0], ch0 = w0 - 2 * knife - gap.total;
+      h += '<div class="ro cut"><div class="k">Чистовой рез</div><div class="v mono">' + fmt(w0) + '<small>мм</small></div></div>' +
+           '<div class="ro cut"><div class="k">Черновой рез</div><div class="v mono' + (ch0 <= 0 ? ' bad' : '') + '">' + fmt(ch0) + '<small>мм</small></div></div>';
+    }
+    h += '</div>';
+
+    // при нескольких ширинах — компактная таблица рез
+    if (widths.length > 1) {
+      h += '<div class="cutmini"><div class="cmhead"><span>Полоса ×шт</span><span>Чистовой</span><span>Черновой</span></div>';
+      widths.forEach(function (w) {
+        var ch = w - 2 * knife - gap.total;
+        h += '<div class="cmrow"><span class="cmw">' + fmt(w) + ' ×' + agg[w] + '</span><span class="mono">' + fmt(w) + '</span><span class="mono' + (ch <= 0 ? ' bad' : '') + '">' + fmt(ch) + '</span></div>';
+      });
+      h += '</div>';
+    }
+
+    // компактная строка деталей: зазор · база · резинки · вместимость (не блокирует)
+    var fit = "";
+    if (widths.length) {
+      fit = (edgeTrim < -1e-6)
+        ? '<span class="over">не помещается на ' + fmt(-edgeTrim) + ' мм</span>'
+        : '<span class="fits">помещается, запас ' + fmt(edgeTrim) + ' мм</span>';
+    }
+    h += '<div class="statline">' +
+      '<span>Зазор <b>' + fmt(gap.total) + '</b>/<b>' + fmt(gap.knife) + '</b></span>' +
+      '<span>База <b>' + fmt(base) + '</b></span>' +
+      '<span class="chip ' + rub.cls + '"><span class="dot"></span>' + rubShort + '</span>' +
+      (widths.length ? '<span>Полос <b>' + totalStrips + '</b> · ножей <b>' + knives + '</b> (по ' + knivesPerArbor + ' на вал)</span>' : '') +
+      fit +
+      '</div>';
+
+    resultBody.innerHTML = h;
+
+    // ===== РАСКЛАДКА НА ВАЛАХ (второстепенно, ниже) =====
+    var lh = "";
+    var strips = [];
+    order.forEach(function (r) { if (r.w > 0 && r.q > 0) { for (var i = 0; i < r.q; i++) strips.push(r.w); } });
+    if (strips.length) {
+      var N = strips.length;
+      var upperStartsClean = (N % 2 === 1);   // чётное → черновой, нечётное → чистовой
+      var cellHtml = function (w, clean) {
+        var v = clean ? w : (w - 2 * knife - gap.total);
+        return '<div class="seg cut ' + (clean ? 'clean' : 'rough') + '"><div class="box mono">' + fmt(v) +
+          '</div><div class="cap">' + (clean ? 'чистовой' : 'черновой') + '</div></div>';
+      };
+      var rowHtml = function (startClean) {
+        var s = "";
+        for (var k = 0; k < N; k++) { s += cellHtml(strips[k], (k % 2 === 0) ? startClean : !startClean); }
+        return s;
+      };
+      lh += '<div class="layout-wrap"><div class="lab">Раскладка на валах (' + N + ' полос' + (N % 2 === 0 ? ', чётное' : ', нечётное') + ')</div>';
+      lh += '<div class="arbor"><span class="atag">Верхний вал</span><div class="bar">' + rowHtml(upperStartsClean) + '</div></div>';
+      lh += '<div class="arbor"><span class="atag">Нижний вал</span><div class="bar">' + rowHtml(!upperStartsClean) + '</div></div>';
+      lh += '<div class="legend"><span class="lg clean">чистовой рез</span><span class="lg rough">черновой рез</span></div>';
+      lh += '</div>';
+    }
+    layoutBody.innerHTML = lh;
+
+    // ===== РАЗДЕЛИТЕЛЬ (отдельное окошко) =====
+    var SEP_VAL = 1730, RING_EDGE = 10;
+    var sdSel = document.getElementById("sepDelta").value;
+    var sepDelta = (sdSel === "auto") ? sepDeltaAuto(t) : parseFloat(sdSel);
+    var ringMid = parseFloat(document.getElementById("sepRing").value);
+    var sh = '<div class="blabel">Разделитель</div>';
+    if (widths.length) {
+      var sepStripsSum = usedWidth + sepDelta * totalStrips;   // полосы с прибавкой
+      var ringCount = totalStrips + 1;                          // колец на 1 больше полос
+      var ringsWidth = 2 * RING_EDGE + (ringCount - 2) * ringMid;
+      var sepRoot = (SEP_VAL - (sepStripsSum + ringsWidth)) / 2;
+
+      sh += '<div class="rgrid">' +
+        '<div class="ro"><div class="k">Корень разделителя</div><div class="v mono">' + fmt(sepRoot) + '<small>мм</small></div></div>';
+      if (widths.length === 1) {
+        sh += '<div class="ro cut"><div class="k">Ширина полосы</div><div class="v mono">' + fmt(widths[0] + sepDelta) + '<small>мм</small></div></div>';
+      } else {
+        sh += '<div class="ro cut"><div class="k">Прибавка к полосе</div><div class="v mono">+' + fmt(sepDelta) + '<small>мм</small></div></div>';
+      }
+      sh += '</div>';
+
+      if (widths.length > 1) {
+        sh += '<div class="cutmini sep"><div class="cmhead"><span>Полоса ×шт</span><span>Ширина (раздел.)</span></div>';
+        widths.forEach(function (w) {
+          sh += '<div class="cmrow"><span class="cmw">' + fmt(w) + ' ×' + agg[w] + '</span><span class="mono">' + fmt(w + sepDelta) + '</span></div>';
+        });
+        sh += '</div>';
+      }
+
+      sh += '<div class="statline">' +
+        '<span>Прибавка <b>+' + fmt(sepDelta) + '</b>' + (sdSel === "auto" ? ' (авто)' : '') + '</span>' +
+        '<span>Колец <b>' + ringCount + '</b> · 2×' + RING_EDGE + ' + ' + (ringCount - 2) + '×' + fmt(ringMid) + '</span>' +
+        '<span>Вал <b>' + SEP_VAL + '</b></span>' +
+        '</div>';
+    } else {
+      sh += '<div class="statline"><span>Добавьте ширину полосы в заказ</span></div>';
+    }
+    sepBody.innerHTML = sh;
+  }
+
+  // Тема переключается чисто на CSS (чекбокс). JS ниже — только необязательная «память»
+  // выбора между запусками; если JS выключен, тема всё равно работает.
+  try {
+    var themeToggle = document.getElementById("themeToggle");
+    if (localStorage.getItem("perevalka.dark") === "1") themeToggle.checked = true;
+    themeToggle.addEventListener("change", function () {
+      try { localStorage.setItem("perevalka.dark", themeToggle.checked ? "1" : "0"); } catch (e) {}
+    });
+  } catch (e) {}
+
+  // recompute on any config/order input
+  ["t", "p"].forEach(function (id) { document.getElementById(id).addEventListener("input", compute); });
+  knifeSel.addEventListener("change", function () { toggleKnife(); compute(); });
+  knifeCustom.addEventListener("input", compute);
+  gapAutoEl.addEventListener("change", function () { syncGapFields(); compute(); });
+  // ручной зазор: зазор на ноже = половина общего — меняем один, второй ставится сам
+  function round3(x) { return Math.round(x * 1000) / 1000; }
+  document.getElementById("gapTotal").addEventListener("input", function () {
+    if (!gapAutoEl.checked) { var v = num("gapTotal"); if (isFinite(v)) document.getElementById("gapKnife").value = round3(v / 2); }
+    compute();
+  });
+  document.getElementById("gapKnife").addEventListener("input", function () {
+    if (!gapAutoEl.checked) { var v = num("gapKnife"); if (isFinite(v)) document.getElementById("gapTotal").value = round3(v * 2); }
+    compute();
+  });
+  document.getElementById("sepDelta").addEventListener("change", compute);
+  document.getElementById("sepRing").addEventListener("change", compute);
+
+  renderSort(); renderOrder(); compute();
+})();
+</script>
