@@ -209,6 +209,71 @@
   .legend .lg.clean::before { background: var(--accent); }
   .legend .lg.rough::before { background: #3f4753; }
 
+  /* Схема сборки — вид как на слиттере */
+  .assy { margin-bottom: 16px; }
+  .assy .atitle { font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 700; margin-bottom: 8px; }
+  .assy .abar {
+    display: flex; align-items: flex-end; gap: 2px; overflow-x: auto; padding: 4px 2px 6px;
+    min-height: 72px; background: linear-gradient(180deg, transparent 40%, rgba(20,28,38,.04) 100%);
+    border-radius: 8px;
+  }
+  .assy .aseg {
+    flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+  }
+  /* Нож — высокий металлический диск */
+  .assy .aseg.knife .abox {
+    width: 10px; min-width: 10px; height: 62px;
+    background: linear-gradient(90deg, #8a939e 0%, #d8dee6 18%, #f0f3f6 40%, #c5ccd4 70%, #6b7380 100%);
+    border-radius: 2px;
+    box-shadow: 1px 0 0 rgba(0,0,0,.15), -1px 0 0 rgba(255,255,255,.3);
+  }
+  /* Резина — чуть ниже, цветной цилиндр без текста */
+  .assy .aseg.rubber .abox {
+    width: 16px; min-width: 16px; height: 46px;
+    background: linear-gradient(90deg, #1e3a8a 0%, #3b82f6 35%, #1d4ed8 70%, #1e3a8a 100%);
+    border-radius: 3px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.25);
+  }
+  .assy .aseg.rubber.green .abox {
+    background: linear-gradient(90deg, #14532d 0%, #22c55e 35%, #15803d 70%, #14532d 100%);
+  }
+  /* Проставки — металлическое тело с цифрами */
+  .assy .aseg.spacer .abox {
+    min-width: 42px; height: 38px; padding: 3px 6px;
+    background: linear-gradient(180deg, #e8ecf0 0%, #c5ccd4 45%, #a8b0ba 100%);
+    border: 1px solid #8a939e; border-radius: 3px;
+    color: #1b2027; font-size: .65rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; text-align: center; line-height: 1.15;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.6);
+  }
+  :root:has(#themeToggle:checked) .assy .aseg.spacer .abox {
+    background: linear-gradient(180deg, #3a424c 0%, #2a313a 50%, #1e242c 100%);
+    border-color: #555e6a; color: #e8ecf0;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+  }
+  .assy .aseg.spacer.bad .abox {
+    border-color: var(--warn); color: var(--warn);
+    background: var(--warn-soft);
+  }
+  .assy .aseg .acap {
+    font-size: .58rem; color: var(--muted); margin-top: 3px; white-space: nowrap; max-width: 88px;
+    overflow: hidden; text-overflow: ellipsis;
+  }
+  .alegend {
+    display: flex; flex-wrap: wrap; gap: 10px 14px; margin-top: 6px; font-size: .74rem; color: var(--ink-2);
+  }
+  .alegend .dot {
+    display: inline-block; width: 11px; height: 11px; border-radius: 3px; margin-right: 5px; vertical-align: -1px;
+  }
+  .alegend .dot.rub { background: #1d4ed8; }
+  .alegend .dot.rub.green { background: #15803d; }
+  .alegend .dot.sp {
+    background: linear-gradient(180deg, #e8ecf0, #a8b0ba); border: 1px solid #8a939e;
+  }
+  .alegend .dot.knife {
+    background: linear-gradient(90deg, #8a939e, #f0f3f6, #6b7380); border: 1px solid #6b7380;
+  }
+
   /* Компактный ввод */
   .ibody { padding: 12px 13px; }
   .orderwrap { margin-top: 8px; }
@@ -378,6 +443,99 @@
     return 5;
   }
 
+  // Проставочные кольца (мм): 3.0–3.9, 5.0–5.9 шаг 0.1, затем 6,7,8,9,10,15,20,30,50,100
+  var RING_SIZES = (function () {
+    var a = [];
+    for (var i = 0; i <= 9; i++) a.push(+(3 + i * 0.1).toFixed(1));
+    for (var i = 0; i <= 9; i++) a.push(+(5 + i * 0.1).toFixed(1));
+    a = a.concat([6, 7, 8, 9, 10, 15, 20, 30, 50, 100]);
+    // unique + desc
+    var seen = {};
+    return a.filter(function (x) { if (seen[x]) return false; seen[x] = 1; return true; })
+             .sort(function (x, y) { return y - x; });
+  })();
+  var RUBBER_W = 15; // одна резинка, мм
+
+  // Точный набор колец (DP по 0.1 мм) — минимальное количество
+  function packRings(target) {
+    if (!isFinite(target) || target < -1e-6) return { ok: false, used: [], sum: 0, rem: target };
+    target = Math.round(target * 10) / 10;
+    if (target < 1e-6) return { ok: true, used: [], sum: 0, rem: 0 };
+    var unit = Math.round(target * 10);
+    if (unit > 5000) { // safety: слишком большой, fallback greedy
+      var usedG = [], remG = target;
+      for (var i = 0; i < RING_SIZES.length; i++) {
+        var r = RING_SIZES[i];
+        while (remG >= r - 1e-9) { usedG.push(r); remG = Math.round((remG - r) * 10) / 10; if (usedG.length > 80) break; }
+        if (usedG.length > 80) break;
+      }
+      return { ok: Math.abs(remG) < 0.06, used: usedG, sum: Math.round((target - remG) * 10) / 10, rem: remG };
+    }
+    var dp = new Array(unit + 1).fill(Infinity);
+    var prev = new Array(unit + 1).fill(-1);
+    var choice = new Array(unit + 1).fill(0);
+    dp[0] = 0;
+    for (var u = 0; u <= unit; u++) {
+      if (dp[u] === Infinity) continue;
+      for (var si = 0; si < RING_SIZES.length; si++) {
+        var s = RING_SIZES[si];
+        var su = Math.round(s * 10);
+        if (u + su > unit) continue;
+        if (dp[u] + 1 < dp[u + su]) {
+          dp[u + su] = dp[u] + 1;
+          prev[u + su] = u;
+          choice[u + su] = s;
+        }
+      }
+    }
+    if (dp[unit] === Infinity) {
+      // ближайший меньший
+      for (var b = unit - 1; b >= 0; b--) {
+        if (dp[b] !== Infinity) {
+          var usedB = [], curB = b;
+          while (curB > 0) { usedB.push(choice[curB]); curB = prev[curB]; }
+          var sumB = b / 10;
+          return { ok: false, used: usedB, sum: sumB, rem: Math.round((target - sumB) * 10) / 10 };
+        }
+      }
+      return { ok: false, used: [], sum: 0, rem: target };
+    }
+    var used = [], cur = unit;
+    while (cur > 0) {
+      used.push(choice[cur]);
+      cur = prev[cur];
+    }
+    return { ok: true, used: used, sum: target, rem: 0 };
+  }
+  // Сгруппировать одинаковые: [{sz, cnt}, ...]
+  function groupRings(used) {
+    var m = {};
+    used.forEach(function (r) { m[r] = (m[r] || 0) + 1; });
+    return Object.keys(m).map(parseFloat).sort(function (a, b) { return b - a; }).map(function (sz) {
+      return { sz: sz, cnt: m[sz] };
+    });
+  }
+  function fmtRings(grp) {
+    if (!grp.length) return "—";
+    return grp.map(function (g) { return (g.cnt > 1 ? g.cnt + "×" : "") + fmt(g.sz); }).join(" + ");
+  }
+  // Разделить target на n частей как можно ровнее (для 2 зазоров между 3 резинками)
+  function splitEven(target, n) {
+    if (n <= 1) return [target];
+    var parts = [];
+    var base = Math.floor((target * 10) / n) / 10;
+    var rem = Math.round((target - base * n) * 10) / 10;
+    for (var i = 0; i < n; i++) {
+      var extra = (i < Math.round(rem * 10)) ? 0.1 : 0;
+      parts.push(Math.round((base + extra) * 10) / 10);
+    }
+    // корректировка суммы
+    var s = parts.reduce(function (a, b) { return a + b; }, 0);
+    var diff = Math.round((target - s) * 10) / 10;
+    if (Math.abs(diff) > 1e-9) parts[0] = Math.round((parts[0] + diff) * 10) / 10;
+    return parts;
+  }
+
   // --- number format: comma decimals, up to 3 dp, trim zeros ---
   function fmt(x) {
     if (!isFinite(x)) return "—";
@@ -526,7 +684,11 @@
     var upper = base - knife;        // верхний корень
     var lower = base + gap.knife;    // нижний корень (прибавляем половину зазора)
     var rub = rubber(t);
+    var useRubber = rub.cls !== "none";
     var rubShort = rub.cls === "blue" ? "Синие резинки" : rub.cls === "green" ? "Зелёные резинки" : "Без резинок";
+    // При резине: чистовой = ширина − 3×15, черновой = (ширина − 2×нож − зазор) − 1×15
+    var rubberCleanSub = useRubber ? 3 * RUBBER_W : 0;  // 45
+    var rubberRoughSub = useRubber ? 1 * RUBBER_W : 0;  // 15
 
     // per width (aggregate identical widths)
     var agg = {};
@@ -539,24 +701,27 @@
     var knives = knivesPerArbor * 2;        // всего (два вала)
     var edgeTrim = P - usedWidth;
 
+    function cleanVal(w) { return w - rubberCleanSub; }
+    function roughVal(w) { return w - 2 * knife - gap.total - rubberRoughSub; }
+
     // ===== ГЛАВНЫЕ ЦИФРЫ (верхний/нижний корень + чистовой/черновой рез) =====
     var h = '<div class="blabel">Перевалка</div>';
     h += '<div class="rgrid">' +
       '<div class="ro"><div class="k">Верхний корень</div><div class="v mono">' + fmt(upper) + '<small>мм</small></div></div>' +
       '<div class="ro"><div class="k">Нижний корень</div><div class="v mono">' + fmt(lower) + '<small>мм</small></div></div>';
     if (widths.length === 1) {
-      var w0 = widths[0], ch0 = w0 - 2 * knife - gap.total;
-      h += '<div class="ro cut"><div class="k">Чистовой рез</div><div class="v mono">' + fmt(w0) + '<small>мм</small></div></div>' +
-           '<div class="ro cut"><div class="k">Черновой рез</div><div class="v mono' + (ch0 <= 0 ? ' bad' : '') + '">' + fmt(ch0) + '<small>мм</small></div></div>';
+      var w0 = widths[0], cl0 = cleanVal(w0), ch0 = roughVal(w0);
+      h += '<div class="ro cut"><div class="k">Чистовой рез' + (useRubber ? ' <small>(−3 рез.)</small>' : '') + '</div><div class="v mono">' + fmt(cl0) + '<small>мм</small></div></div>' +
+           '<div class="ro cut"><div class="k">Черновой рез' + (useRubber ? ' <small>(−1 рез.)</small>' : '') + '</div><div class="v mono' + (ch0 <= 0 ? ' bad' : '') + '">' + fmt(ch0) + '<small>мм</small></div></div>';
     }
     h += '</div>';
 
     // при нескольких ширинах — компактная таблица рез
     if (widths.length > 1) {
-      h += '<div class="cutmini"><div class="cmhead"><span>Полоса ×шт</span><span>Чистовой</span><span>Черновой</span></div>';
+      h += '<div class="cutmini"><div class="cmhead"><span>Полоса ×шт</span><span>Чистовой' + (useRubber ? ' (−3р)' : '') + '</span><span>Черновой' + (useRubber ? ' (−1р)' : '') + '</span></div>';
       widths.forEach(function (w) {
-        var ch = w - 2 * knife - gap.total;
-        h += '<div class="cmrow"><span class="cmw">' + fmt(w) + ' ×' + agg[w] + '</span><span class="mono">' + fmt(w) + '</span><span class="mono' + (ch <= 0 ? ' bad' : '') + '">' + fmt(ch) + '</span></div>';
+        var cl = cleanVal(w), ch = roughVal(w);
+        h += '<div class="cmrow"><span class="cmw">' + fmt(w) + ' ×' + agg[w] + '</span><span class="mono">' + fmt(cl) + '</span><span class="mono' + (ch <= 0 ? ' bad' : '') + '">' + fmt(ch) + '</span></div>';
       });
       h += '</div>';
     }
@@ -586,7 +751,7 @@
       var N = strips.length;
       var upperStartsClean = (N % 2 === 1);   // чётное → черновой, нечётное → чистовой
       var cellHtml = function (w, clean) {
-        var v = clean ? w : (w - 2 * knife - gap.total);
+        var v = clean ? cleanVal(w) : roughVal(w);
         return '<div class="seg cut ' + (clean ? 'clean' : 'rough') + '"><div class="box mono">' + fmt(v) +
           '</div><div class="cap">' + (clean ? 'чистовой' : 'черновой') + '</div></div>';
       };
@@ -595,10 +760,124 @@
         for (var k = 0; k < N; k++) { s += cellHtml(strips[k], (k % 2 === 0) ? startClean : !startClean); }
         return s;
       };
-      lh += '<div class="layout-wrap"><div class="lab">Раскладка на валах (' + N + ' полос' + (N % 2 === 0 ? ', чётное' : ', нечётное') + ')</div>';
+      lh += '<div class="layout-wrap"><div class="lab">Раскладка на валах (' + N + ' полос' + (N % 2 === 0 ? ', чётное' : ', нечётное') + (useRubber ? ', с резиной' : '') + ')</div>';
       lh += '<div class="arbor"><span class="atag">Верхний вал</span><div class="bar">' + rowHtml(upperStartsClean) + '</div></div>';
       lh += '<div class="arbor"><span class="atag">Нижний вал</span><div class="bar">' + rowHtml(!upperStartsClean) + '</div></div>';
       lh += '<div class="legend"><span class="lg clean">чистовой рез</span><span class="lg rough">черновой рез</span></div>';
+      lh += '</div>';
+    }
+
+    // ===== ПРОСТАВОЧНЫЕ КОЛЬЦА — визуальная схема (с резиной и без) =====
+    if (widths.length) {
+      var rubCls = rub.cls; // "blue" | "green" | "none"
+      lh += '<div class="layout-wrap" style="border-top:1px solid var(--border); margin-top:8px; padding-top:10px">';
+      lh += '<div class="lab">' + (useRubber ? "Сборка с резиной" : "Проставочные кольца") + '</div>';
+      lh += '<div class="alegend" style="margin-bottom:10px">';
+      lh += '<span><span class="dot knife"></span>нож</span>';
+      if (useRubber) {
+        lh += '<span><span class="dot rub' + (rubCls === "green" ? " green" : "") + '"></span>резина</span>';
+      }
+      lh += '<span><span class="dot sp"></span>проставы</span></div>';
+
+      function knifeSeg() {
+        return '<div class="aseg knife"><div class="abox"></div></div>';
+      }
+      function rubberSeg() {
+        return '<div class="aseg rubber' + (rubCls === "green" ? " green" : "") + '"><div class="abox"></div></div>';
+      }
+      function spacerSeg(pack, grp, targetPart) {
+        var label = pack.ok ? (grp.length ? fmtRings(grp) : "—") : ("≈" + fmt(pack.sum));
+        var title = pack.ok ? ("сумма " + fmt(pack.sum) + " мм") : ("набрано " + fmt(pack.sum) + ", остаток " + fmt(pack.rem));
+        var bad = pack.ok ? "" : " bad";
+        var wpx = Math.max(42, Math.min(130, Math.round(Math.max(targetPart, 1) * 1.05)));
+        return '<div class="aseg spacer' + bad + '" title="' + title + '">' +
+          '<div class="abox mono" style="min-width:' + wpx + 'px">' + label + '</div>' +
+          '<div class="acap">' + fmt(targetPart) + ' мм</div></div>';
+      }
+
+      widths.forEach(function (w) {
+        var cl = cleanVal(w);
+        var ch = roughVal(w);
+        var q = agg[w];
+
+        lh += '<div style="margin-bottom:14px; padding:12px; background:var(--surface-2); border:1px solid var(--border); border-radius:9px">';
+        lh += '<div style="font-weight:700; margin-bottom:10px">' + fmt(w) + ' мм ×' + q + '</div>';
+
+        if (useRubber) {
+          // С резиной: нож — рез — проставы — рез — проставы — рез — нож
+          var parts = splitEven(cl, 2);
+          var packA = packRings(parts[0]), packB = packRings(parts[1]);
+          var grpA = groupRings(packA.used), grpB = groupRings(packB.used);
+
+          var partsR = splitEven(ch, 2);
+          var packL = packRings(partsR[0]), packRgt = packRings(partsR[1]);
+          var grpL = groupRings(packL.used), grpRg = groupRings(packRgt.used);
+
+          // Чистовой (3 резины)
+          lh += '<div class="assy">';
+          lh += '<div class="atitle">Чистовой · кольца ' + fmt(cl) + ' мм</div>';
+          lh += '<div class="abar">';
+          lh += knifeSeg();
+          lh += rubberSeg();
+          lh += spacerSeg(packA, grpA, parts[0]);
+          lh += rubberSeg();
+          lh += spacerSeg(packB, grpB, parts[1]);
+          lh += rubberSeg();
+          lh += knifeSeg();
+          lh += '</div>';
+          if (!packA.ok || !packB.ok) {
+            lh += '<div class="foot-note" style="color:var(--warn); margin-top:4px">Не удалось точно набрать — проверьте вручную</div>';
+          }
+          lh += '</div>';
+
+          // Черновой (1 резина)
+          lh += '<div class="assy" style="margin-bottom:0">';
+          lh += '<div class="atitle">Черновой · кольца ' + fmt(ch) + ' мм</div>';
+          lh += '<div class="abar">';
+          lh += knifeSeg();
+          lh += spacerSeg(packL, grpL, partsR[0]);
+          lh += rubberSeg();
+          lh += spacerSeg(packRgt, grpRg, partsR[1]);
+          lh += knifeSeg();
+          lh += '</div>';
+          if (!packL.ok || !packRgt.ok) {
+            lh += '<div class="foot-note" style="color:var(--warn); margin-top:4px">Не удалось точно набрать — проверьте вручную</div>';
+          }
+          lh += '</div>';
+        } else {
+          // Без резины: нож — проставы — нож
+          var packCl = packRings(cl);
+          var grpCl = groupRings(packCl.used);
+          var packCh = packRings(ch);
+          var grpCh = groupRings(packCh.used);
+
+          lh += '<div class="assy">';
+          lh += '<div class="atitle">Чистовой · ' + fmt(cl) + ' мм</div>';
+          lh += '<div class="abar">';
+          lh += knifeSeg();
+          lh += spacerSeg(packCl, grpCl, cl);
+          lh += knifeSeg();
+          lh += '</div>';
+          if (!packCl.ok) {
+            lh += '<div class="foot-note" style="color:var(--warn); margin-top:4px">Не удалось точно набрать — проверьте вручную</div>';
+          }
+          lh += '</div>';
+
+          lh += '<div class="assy" style="margin-bottom:0">';
+          lh += '<div class="atitle">Черновой · ' + fmt(ch) + ' мм</div>';
+          lh += '<div class="abar">';
+          lh += knifeSeg();
+          lh += spacerSeg(packCh, grpCh, ch);
+          lh += knifeSeg();
+          lh += '</div>';
+          if (!packCh.ok) {
+            lh += '<div class="foot-note" style="color:var(--warn); margin-top:4px">Не удалось точно набрать — проверьте вручную</div>';
+          }
+          lh += '</div>';
+        }
+
+        lh += '</div>';
+      });
       lh += '</div>';
     }
     layoutBody.innerHTML = lh;
